@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/QRightAngle">
+        <file>icon.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,23 @@
+; mandatory metadata
+[general]
+name=QRightAngle
+email=dhuijiang@163.com
+author=dhui jiang
+qgisMinimumVersion=3.0
+description=The plugin for right angle processing of vector features
+about=The plugin for right angle processing of vector features
+version=version 0.1.0
+repository=https://github.com/dhuijiang/QRightAngle
+tracker=https://github.com/dhuijiang/QRightAngle/issues
+homepage=https://github.com/dhuijiang/QRightAngle
+
+changelog=The changelog lists the plugin versions
+    and their changes as in the example below:
+    0.1.0 - First testing release
+
+; optional metadata
+category=Vector
+tags=vector,right angle,perpendicular
+experimental=False
+deprecated=False
+icon=icon.png

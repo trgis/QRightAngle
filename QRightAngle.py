@@ -173,6 +173,7 @@ class QRightAngle(QgsMapToolEdit):
                                 qgsDoubleNear(srcCurve.yAt(0), srcCurve.yAt(numPoints - 1))
             
             x = 0.0; y = 0.0; lastX = 0.0; lastY = 0.0; startX = 0.0; startY = 0.0; endX = 0.0; endY = 0.0
+            pi = 3.141592653589793
 
             # Do RightAngle
             for i in range(numPoints):
@@ -180,27 +181,30 @@ class QRightAngle(QgsMapToolEdit):
                 y = srcCurve.yAt(i)
 
                 if i > 0:
+                    nextX = srcCurve.xAt((i + 1) % numPoints)
+                    nextY = srcCurve.yAt((i + 1) % numPoints)
+                    ang = QgsGeometryUtils.angleBetweenThreePoints(startX, startY, x, y, nextX, nextY)
+                    if math.fabs(ang-pi) < pi / 8:
+                        continue
                     startX = endX
                     startY = endY
                     endX = lastX
                     endY = lastY
-                    lastX = srcCurve.xAt((i + 1) % numPoints)
-                    lastY = srcCurve.yAt((i + 1) % numPoints)
-                    lastX = (lastX + x) / 2
-                    lastY = (lastY + y) / 2
+                    lastX = (nextX + x) / 2
+                    lastY = (nextY + y) / 2
                     magnitude2 = self.calculateLengthSquared2D(startX, startY, endX, endY)
                     u = ((lastX - startX) * (endX - startX) + (lastY - startY) * (endY - startY)) / magnitude2
                     endX = startX + u * (endX - startX)
                     endY = startY + u * (endY - startY)
 
                 else:
-                    startX = x
-                    startY = y
                     endX = x
                     endY = y
                     lastX = srcCurve.xAt((i + 1) % numPoints)
                     lastY = srcCurve.yAt((i + 1) % numPoints)
 
+                startX = x
+                startY = y
                 lineStringX.append(endX)
                 lineStringY.append(endY)
 
@@ -228,10 +232,13 @@ class QRightAngle(QgsMapToolEdit):
     def storeRightAngled(self):
         vlayer = self.currentVectorLayer()
         vlayer.beginEditCommand(self.tr( "Geometry RightAngle"))
+        numOfRightAngled = 0
         for f in self.selectedFeatures:
             g = self.processGeometry(f.geometry().constGet())
             if not g.isNull():
                 vlayer.changeGeometry(f.id(), g)
+                numOfRightAngled += 1
+        self.messageEmitted.emit(self.tr('{} features on current layer RightAngled.'.format(numOfRightAngled)))
         vlayer.endEditCommand()
         self.clearSelection()
         vlayer.triggerRepaint()

@@ -1,6 +1,21 @@
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ QRightAngle
+                                 A QGIS plugin
+ The plugin for right angle processing of vector features
+                              -------------------
+        begin                : 2020-04-03
+        copyright            : (C) 2020 by DHui Jiang
+        email                : dhuijiang@163.com
+        git                  : https://github.com/dhuijiang/QRightAngle
+ ***************************************************************************/
+"""
+
 from qgis.core import QgsVectorLayer, QgsWkbTypes
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from QRightAngle import RESOURCE_PREFIX
 from . import resources
 from .QRightAngle import QRightAngle
 
@@ -13,7 +28,7 @@ class MainPlugin:
     def initGui(self):
         self.action = QAction('Right Angle')
         self.action.triggered.connect(self.onClick)
-        self.action.setIcon(QIcon(':/plugins/QRightAngle/icon.png'))
+        self.action.setIcon(QIcon(RESOURCE_PREFIX + 'icon.png'))
         self.action.setCheckable(True)
         self.action.setStatusTip("Select vector features for right angle processing ...")
         self.iface.addToolBarIcon(self.action)

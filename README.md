@@ -1,9 +1,8 @@
 QRightAngle
 ===========
 
-A QGIS3 plugin for right angle processing of vector features
-
-Development based on VSCode & QGIS3 in MacOSX
+The QGIS3 plugin for right angle processing of vector features.
+Development based on VSCode & QGIS3 in MacOSX.
 
 Demonstration screenshots
 -------------------------

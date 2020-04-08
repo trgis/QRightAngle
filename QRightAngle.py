@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ QRightAngle
+                                 A QGIS plugin
+ The plugin for right angle processing of vector features
+                              -------------------
+        begin                : 2020-04-03
+        copyright            : (C) 2020 by DHui Jiang
+        email                : dhuijiang@163.com
+        git                  : https://github.com/dhuijiang/QRightAngle
+ ***************************************************************************/
+"""
+
 import os
 import math
 from datetime import datetime

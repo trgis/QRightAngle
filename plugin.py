@@ -30,6 +30,11 @@ class MainPlugin:
         self.action.triggered.connect(self.onClick)
         self.action.setIcon(QIcon(RESOURCE_PREFIX + 'icon.png'))
         self.action.setCheckable(True)
+        tooltip = '<strong>RightAngle of vector features</strong>'
+        tooltip += '<p>Supported geometry types:<br><strong>'
+        tooltip += '/'.join([QgsWkbTypes.displayString(x) for x in QRightAngle.CanDoTypes])
+        tooltip += '</strong></p>'
+        self.action.setToolTip(tooltip)
         self.action.setStatusTip("Select vector features for right angle processing ...")
         self.iface.addToolBarIcon(self.action)
 
@@ -58,5 +63,5 @@ class MainPlugin:
         self.action.setEnabled(False)
         layer = self.iface.activeLayer()
         if layer != None and isinstance(layer, QgsVectorLayer):
-            if layer.wkbType() in [QgsWkbTypes.Polygon, QgsWkbTypes.LineString]:
+            if layer.wkbType() in QRightAngle.CanDoTypes:
                 self.action.setEnabled(True)

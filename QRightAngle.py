@@ -23,6 +23,11 @@ import qgis.utils
 
 class QRightAngle(QgsMapToolEdit):
 
+    CanDoTypes = [
+        QgsWkbTypes.Polygon,
+        QgsWkbTypes.LineString,
+    ]
+
     def __init__(self, mapCanvas):
         self.canvas = mapCanvas
         QgsMapToolEdit.__init__(self, self.canvas)
@@ -63,7 +68,8 @@ class QRightAngle(QgsMapToolEdit):
         if e.buttons() == Qt.RightButton:
             self.clearSelection()
             return
-        if e.button() != Qt.LeftButton or not self.currentVectorLayer():
+        vlayer = self.currentVectorLayer()
+        if e.button() != Qt.LeftButton or not vlayer:
             return
 
         self.selectionRubberBand.reset(True)
@@ -80,11 +86,10 @@ class QRightAngle(QgsMapToolEdit):
 
         self.isDragging = False
 
-        if not self.selectedFeatures:
-            self.messageEmitted.emit(self.tr('Could not find a nearby feature in the current layer.'))
-            return
+        self.messageEmitted.emit(self.tr('{0} features in layer {1} selected.'.format(len(self.selectedFeatures), vlayer.name())))
 
-        self.messageEmitted.emit(self.tr('Selected {} features in the current layer.'.format(len(self.selectedFeatures))))
+        if not self.selectedFeatures:
+            return
 
         # count vertices, prepare rubber bands
         for f in self.selectedFeatures:
@@ -117,10 +122,11 @@ class QRightAngle(QgsMapToolEdit):
         currentDistance = float('inf')
         minDistanceFeature = QgsFeature()
         for f in selectedFeatures:
-            currentDistance = geometry.distance(f.geometry())
-            if currentDistance < minDistance:
-                minDistance = currentDistance
-                minDistanceFeature = f
+            if f.geometry().wkbType() in self.CanDoTypes:
+                currentDistance = geometry.distance(f.geometry())
+                if currentDistance < minDistance:
+                    minDistance = currentDistance
+                    minDistanceFeature = f
 
         if minDistanceFeature.isValid():
             self.selectedFeatures.append(minDistanceFeature)
@@ -137,7 +143,8 @@ class QRightAngle(QgsMapToolEdit):
         request.setNoAttributes()
         selectedFeatures = vlayer.getFeatures(request)
         for f in selectedFeatures:
-            self.selectedFeatures.append(f)
+            if f.geometry().wkbType() in self.CanDoTypes:
+                self.selectedFeatures.append(f)
 
     def updateRightAnglePreview(self):
         vlayer = self.currentVectorLayer()
@@ -227,11 +234,14 @@ class QRightAngle(QgsMapToolEdit):
 
     def storeRightAngled(self):
         vlayer = self.currentVectorLayer()
-        vlayer.beginEditCommand(self.tr( "Geometry RightAngle"))
+        vlayer.beginEditCommand(self.tr('Geometry RightAngle'))
+        numOfRightAngled = 0
         for f in self.selectedFeatures:
             g = self.processGeometry(f.geometry().constGet())
             if not g.isNull():
                 vlayer.changeGeometry(f.id(), g)
+                numOfRightAngled += 1
+        self.messageEmitted.emit(self.tr('{0} features on layer {1} RightAngled.'.format(numOfRightAngled, vlayer.name())))
         vlayer.endEditCommand()
         self.clearSelection()
         vlayer.triggerRepaint()

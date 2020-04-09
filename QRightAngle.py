@@ -92,11 +92,11 @@ class QRightAngle(QgsMapToolEdit):
             rb.show()
             self.rubberBands.append(rb)
 
+        self.updateRightAnglePreview()
+
         vlayer = self.currentVectorLayer()
         if vlayer.isEditable():
             self.storeRightAngled()
-        else:
-            self.updateRightAnglePreview()
 
     def keyReleaseEvent(self, e):
         if e.key() == Qt.Key_Escape:
@@ -183,6 +183,10 @@ class QRightAngle(QgsMapToolEdit):
                 if i > 0:
                     nextX = srcCurve.xAt((i + 1) % numPoints)
                     nextY = srcCurve.yAt((i + 1) % numPoints)
+                    if (i + 1) == numPoints:
+                        if isaLinearRing:
+                            nextX = srcCurve.xAt(1)
+                            nextY = srcCurve.yAt(1)
                     ang = QgsGeometryUtils.angleBetweenThreePoints(startX, startY, x, y, nextX, nextY)
                     if math.fabs(ang-pi) < pi / 8:
                         continue

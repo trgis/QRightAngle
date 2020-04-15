@@ -97,11 +97,11 @@ class QRightAngle(QgsMapToolEdit):
             rb.show()
             self.rubberBands.append(rb)
 
+        self.updateRightAnglePreview()
+
         vlayer = self.currentVectorLayer()
         if vlayer.isEditable():
             self.storeRightAngled()
-        else:
-            self.updateRightAnglePreview()
 
     def keyReleaseEvent(self, e):
         if e.key() == Qt.Key_Escape:
@@ -180,34 +180,55 @@ class QRightAngle(QgsMapToolEdit):
                                 qgsDoubleNear(srcCurve.yAt(0), srcCurve.yAt(numPoints - 1))
             
             x = 0.0; y = 0.0; lastX = 0.0; lastY = 0.0; startX = 0.0; startY = 0.0; endX = 0.0; endY = 0.0
+            pi = 3.141592653589793
+
+            iStart = 0
+            if isaLinearRing:
+                maxDistance = 0
+                for i in range(1, numPoints):
+                    dist = self.calculateLengthSquared2D(srcCurve.xAt(i-1), srcCurve.yAt(i-1), srcCurve.xAt(i), srcCurve.yAt(i))
+                    if dist > maxDistance:
+                        maxDistance = dist
+                        iStart = i - 1
 
             # Do RightAngle
             for i in range(numPoints):
-                x = srcCurve.xAt(i)
-                y = srcCurve.yAt(i)
+                if (i + iStart) == numPoints:
+                    if isaLinearRing:
+                        iStart += 1
+                x = srcCurve.xAt((i + iStart) % numPoints)
+                y = srcCurve.yAt((i + iStart) % numPoints)
+                
+                nextX = srcCurve.xAt((i + iStart + 1) % numPoints)
+                nextY = srcCurve.yAt((i + iStart + 1) % numPoints)
+                if (i + iStart + 1) == numPoints:
+                    if isaLinearRing:
+                        nextX = srcCurve.xAt(1)
+                        nextY = srcCurve.yAt(1)
 
                 if i > 0:
+                    ang = QgsGeometryUtils.angleBetweenThreePoints(startX, startY, x, y, nextX, nextY)
+                    if math.fabs(ang-pi) < pi / 8:
+                        continue
                     startX = endX
                     startY = endY
                     endX = lastX
                     endY = lastY
-                    lastX = srcCurve.xAt((i + 1) % numPoints)
-                    lastY = srcCurve.yAt((i + 1) % numPoints)
-                    lastX = (lastX + x) / 2
-                    lastY = (lastY + y) / 2
+                    lastX = (nextX + x) / 2
+                    lastY = (nextY + y) / 2
                     magnitude2 = self.calculateLengthSquared2D(startX, startY, endX, endY)
                     u = ((lastX - startX) * (endX - startX) + (lastY - startY) * (endY - startY)) / magnitude2
                     endX = startX + u * (endX - startX)
                     endY = startY + u * (endY - startY)
 
                 else:
-                    startX = x
-                    startY = y
                     endX = x
                     endY = y
-                    lastX = srcCurve.xAt((i + 1) % numPoints)
-                    lastY = srcCurve.yAt((i + 1) % numPoints)
+                    lastX = nextX
+                    lastY = nextY
 
+                startX = x
+                startY = y
                 lineStringX.append(endX)
                 lineStringY.append(endY)
 

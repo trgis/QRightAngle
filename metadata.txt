@@ -3,14 +3,13 @@ name=QRightAngle
 qgisMinimumVersion=3.0
 description=The plugin for right angle processing of vector features
 
-version=0.1.0
+version=0.2.0
 author=DHui Jiang
 email=dhuijiang@163.com
 
 about=The plugin for right angle processing of vector features
 
-changelog=The changelog lists the plugin versions
-    and their changes as in the example below:
+changelog=0.2.0 - Ignore some vertices & starts at the position of the longest edge
     0.1.0 - First testing release
 
 tracker=https://github.com/dhuijiang/QRightAngle/issues
